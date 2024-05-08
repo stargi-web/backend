@@ -1,4 +1,4 @@
-package com.stargi.backend.domain.Responses;
+package com.stargi.backend.iam.domain.Responses;
 
 public record DeletedUserResponse(String firstName) {
 

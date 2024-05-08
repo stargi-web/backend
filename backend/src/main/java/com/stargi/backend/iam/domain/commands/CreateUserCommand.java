@@ -1,4 +1,4 @@
-package com.stargi.backend.domain.commands;
+package com.stargi.backend.iam.domain.commands;
 
 import java.time.LocalDate;
 
