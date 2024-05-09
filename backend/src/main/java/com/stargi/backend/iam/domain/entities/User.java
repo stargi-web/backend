@@ -1,26 +1,16 @@
 package com.stargi.backend.iam.domain.entities;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.stargi.backend.records.domain.entities.Info;
+import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
@@ -34,7 +24,7 @@ public class User implements UserDetails{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Getter
+
     @Column(name = "user_name",nullable = false)
     private String userName;
 
@@ -54,12 +44,19 @@ public class User implements UserDetails{
     private LocalDate birthDate;
 
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name="user_id"),inverseJoinColumns = @JoinColumn(name="role_id"))
     private Set<Role> roles;
 
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private List<Info> infos;
+
+    public void addInfo(Info info){
+        this.infos.add(info);
+    }
     public User(){
         this.roles=new HashSet<>();
+        this.infos=new ArrayList<>();
     }
     public User(String username,String password,String firstName,String lastName,LocalDate birthDate,List<Role> roles){
         this();
@@ -90,9 +87,10 @@ public class User implements UserDetails{
 
     @Override
     public String getPassword() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPassword'");
+        return this.password;
     }
+
+
 
     @Override
     public String getUsername() {

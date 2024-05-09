@@ -11,8 +11,14 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.With;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@With
 @Entity
 public class Role {
     @Getter
@@ -31,6 +37,8 @@ public class Role {
     public static Role getDefaultRole(){
         return new Role(Roles.USER);
     }
+
+    public Roles getNameAsRoles(){return this.name;}
 
     public String getName(){
         return this.name.name();
