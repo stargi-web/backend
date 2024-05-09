@@ -2,9 +2,12 @@ package com.stargi.backend.iam.domain.entities;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,22 +29,27 @@ import lombok.Builder;
 @AllArgsConstructor
 public class User implements UserDetails{
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "email",nullable = false)
-    private String email;
+    @Getter
+    @Column(name = "user_name",nullable = false)
+    private String userName;
 
     @Column(name="password",nullable=false)
     private String password;
 
+    @Getter
     @Column(name = "first_name",nullable = false)
     private String firstName;
-    
+
+    @Getter
     @Column(name = "last_name",nullable = false)
     private String lastName;
-    
+
+    @Getter
     @Column(name="birth_date",nullable = false)
     private LocalDate birthDate;
 
@@ -50,10 +58,30 @@ public class User implements UserDetails{
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name="user_id"),inverseJoinColumns = @JoinColumn(name="role_id"))
     private Set<Role> roles;
 
-    void setEmail(String newEmail){
-        this.email=newEmail;
+    public User(){
+        this.roles=new HashSet<>();
+    }
+    public User(String username,String password,String firstName,String lastName,LocalDate birthDate,List<Role> roles){
+        this();
+        this.userName=username;
+        this.password=password;
+        this.firstName=firstName;
+        this.lastName=lastName;
+        this.birthDate=birthDate;
+        this.addRoles(roles);
+    }
+    void setEmail(String newUsername){
+        this.userName=newUsername;
+    }
+    public User addRole(Role role) {
+        this.roles.add(role);
+        return this;
     }
 
+    public void addRoles(List<Role> roles) {
+        var validatedRoleSet = Role.validateRoleSet(roles);
+        this.roles.addAll(validatedRoleSet);
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream().map(role-> new SimpleGrantedAuthority(role.getName()))
@@ -68,7 +96,7 @@ public class User implements UserDetails{
 
     @Override
     public String getUsername() {
-        return this.email;
+        return this.userName;
     }
 
     @Override
