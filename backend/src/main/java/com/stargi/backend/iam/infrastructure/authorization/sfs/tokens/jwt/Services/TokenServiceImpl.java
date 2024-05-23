@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 
 @Service
@@ -62,6 +63,19 @@ public class TokenServiceImpl implements BearerTokenService {
                 .signWith(key)
                 .compact();
     }
+    private String buildTokenWithIdAndRolesParameters(String username, Long id, List<String> roles){
+        var issuedAt=new Date();
+        var expiration=DateUtils.addDays(issuedAt,expirationDays);
+        var key=getSigningKey();
+        return Jwts.builder()
+                .subject(username)
+                .claim("id",id)
+                .claim("roles",roles)
+                .issuedAt(issuedAt)
+                .expiration(expiration)
+                .signWith(key)
+                .compact();
+    }
 
     private String buildTokenWithDefaultParameters(String username) {
         var issuedAt = new Date();
@@ -89,6 +103,11 @@ public class TokenServiceImpl implements BearerTokenService {
 
     public String generateTokenWithId(String username,Long id){
         return buildTokenWithIdParameters(username,id);
+    }
+
+    public String generateTokenWithIdAndRoles(String username,Long id,List<String> roles){
+        return buildTokenWithIdAndRolesParameters(username, id, roles);
+
     }
     /**
      * Generates a JWT with default parameters
@@ -154,6 +173,12 @@ public class TokenServiceImpl implements BearerTokenService {
             LOGGER.error("JSON Web Token claims string is empty: {}", e.getMessage());
         }
         return false;
+    }
+
+    @Override
+    public List<String> getRolesFromToken(String token) {
+        Claims claims=extractAllClaims(token);
+        return claims.get("roles",List.class);
     }
 
     /**

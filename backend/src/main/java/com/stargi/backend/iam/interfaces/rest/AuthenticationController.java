@@ -32,7 +32,8 @@ public class AuthenticationController {
     @PostMapping("signIn")
     public ResponseEntity<?> SignIn(@RequestBody LogInUserCommand logInUserCommand){
         var response=userCommandService.handle(logInUserCommand);
-        return ResponseEntity.ok(response);
+        if(response.isEmpty()) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(response.get());
     }
 
 }

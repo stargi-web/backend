@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface InfoRepository extends JpaRepository<Info,Long> {
     List<Info> findByUser(User user);
+    List<Info> findByUserId(Long id);
 }
