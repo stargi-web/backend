@@ -2,6 +2,7 @@ package com.stargi.backend.iam.interfaces.rest;
 
 import com.stargi.backend.iam.domain.commands.DeleteUserCommand;
 import com.stargi.backend.iam.domain.commands.EditPasswordCommand;
+import com.stargi.backend.iam.domain.queries.IsUserLeaderQuery;
 import com.stargi.backend.iam.domain.services.IUserCommandService;
 import com.stargi.backend.iam.domain.services.IUserQueryService;
 import com.stargi.backend.iam.interfaces.dto.UserPasswordChangedDTO;
@@ -45,4 +46,11 @@ public class UserController {
     public ResponseEntity<?> testAdminRole(){
         return ResponseEntity.ok("La verificación de rol admin funcionó");
     }
+
+    @GetMapping("/{userId}/isLeader")
+    public ResponseEntity<?> isUserLeader(@PathVariable("userId") Long userId){
+        var query=new IsUserLeaderQuery(userId);
+        return ResponseEntity.ok(userQueryService.handle(query));
+    }
+
 }

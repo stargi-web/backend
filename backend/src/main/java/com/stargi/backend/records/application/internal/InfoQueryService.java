@@ -5,6 +5,7 @@ import com.stargi.backend.iam.infrastructure.IUserRepository;
 import com.stargi.backend.records.domain.entities.Info;
 import com.stargi.backend.records.domain.queries.FindInfoByIdQuery;
 import com.stargi.backend.records.domain.queries.FindInfoByNameQuery;
+import com.stargi.backend.records.domain.queries.FindInfoByTeamIdQuery;
 import com.stargi.backend.records.domain.queries.FindInfoByUserIdQuery;
 import com.stargi.backend.records.domain.services.IInfoQueryService;
 import com.stargi.backend.records.infrastructure.persistence.InfoRepository;
@@ -49,5 +50,10 @@ public class InfoQueryService implements IInfoQueryService {
 
         LOGGER.info(response.toString());
         return response;
+    }
+
+    @Override
+    public List<Info> handle(FindInfoByTeamIdQuery query) {
+        return infoRepository.findInfosByTeamId(query.teamId());
     }
 }

@@ -1,6 +1,7 @@
 package com.stargi.backend.records.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.stargi.backend.iam.domain.entities.User;
 import com.stargi.backend.records.domain.enums.Stage;
 import jakarta.persistence.*;
@@ -8,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -80,6 +83,10 @@ public class Info {
     @JoinColumn(name="executive_id")
     private User executive;
 
+    @OneToMany(mappedBy = "info",fetch =  FetchType.LAZY)
+    @JsonManagedReference
+    private List<InfoRecord> records;
+
     public Info(String ruc, String businessName, String country, Stage stage, String commentary, String oppNumber,
                 String product, Long units, Long realRent, String contact, String contactNumber, String email,
                 LocalDate expirationAt, User user, LocalDate updatedAt, LocalDate closeAt, User salesManager, User executive) {
@@ -101,6 +108,7 @@ public class Info {
         this.closeAt = closeAt;
         this.salesManager = salesManager;
         this.executive = executive;
+        this.records=new ArrayList<>();
     }
 
     public void setInfo(String newStage,String newCommentary,LocalDate newExpirationAt,LocalDate newCloseAt){
@@ -108,5 +116,9 @@ public class Info {
         this.commentary=newCommentary;
         this.expirationAt=newExpirationAt;
         this.closeAt=newCloseAt;
+    }
+
+    public void addRecord(InfoRecord record){
+        this.records.add(record);
     }
 }

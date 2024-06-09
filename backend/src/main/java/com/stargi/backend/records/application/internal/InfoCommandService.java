@@ -6,15 +6,17 @@ import com.stargi.backend.records.domain.commands.CreateInfoCommand;
 import com.stargi.backend.records.domain.commands.DeleteInfoByIdCommand;
 import com.stargi.backend.records.domain.commands.EditInfoCommand;
 import com.stargi.backend.records.domain.entities.Info;
+import com.stargi.backend.records.domain.entities.InfoRecord;
 import com.stargi.backend.records.domain.enums.Stage;
 import com.stargi.backend.records.domain.services.IInfoCommandService;
+import com.stargi.backend.records.infrastructure.persistence.InfoRecordRepository;
 import com.stargi.backend.records.infrastructure.persistence.InfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.Console;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -28,6 +30,7 @@ public class InfoCommandService implements IInfoCommandService {
 
     private final InfoRepository infoRepository;
     private final IUserRepository userRepository;
+    private final InfoRecordRepository infoRecordRepository;
     @Override
     public Optional<Info> handle(CreateInfoCommand command) {
         var user=userRepository.findById(command.userId());
@@ -61,7 +64,10 @@ public class InfoCommandService implements IInfoCommandService {
         LOGGER.info(newInfo.toString());
         user.get().addInfo(newInfo);
         userRepository.save(user.get());
-        infoRepository.save(newInfo);
+
+        var infoSaved=infoRepository.save(newInfo);
+        InfoRecord newRecord= new InfoRecord(infoSaved.getUpdatedAt(),infoSaved,infoSaved.getStage().name(),infoSaved.getCommentary());
+        infoRecordRepository.save(newRecord);
         return Optional.of(newInfo);
     }
 
@@ -72,13 +78,17 @@ public class InfoCommandService implements IInfoCommandService {
         infoRepository.delete(info.get());
         return 1L;
     }
+    private InfoRecord createInfoRecord(Info info){
+        return new InfoRecord(info.getUpdatedAt(),info,info.getStage().name(),info.getCommentary());
+    }
 
     @Override
     public Optional<Info> handle(EditInfoCommand command) {
         var info=this.infoRepository.findById(command.infoId());
         if(info.isEmpty()) return Optional.empty();
         info.get().setInfo(command.newStage(), command.commentary(), LocalDate.parse(command.expirationAt(),formatter),LocalDate.parse(command.closetAt(),formatter));
-        this.infoRepository.save(info.get());
+        var newRecord=createInfoRecord(this.infoRepository.save(info.get()));
+        this.infoRecordRepository.save(newRecord);
         return this.infoRepository.findById(command.infoId());
     }
 }

@@ -5,10 +5,9 @@ import com.stargi.backend.records.application.internal.InfoQueryService;
 import com.stargi.backend.records.domain.commands.CreateInfoCommand;
 import com.stargi.backend.records.domain.commands.DeleteInfoByIdCommand;
 import com.stargi.backend.records.domain.commands.EditInfoCommand;
-import com.stargi.backend.records.domain.queries.FindInfoByNameQuery;
+import com.stargi.backend.records.domain.queries.FindInfoByTeamIdQuery;
 import com.stargi.backend.records.domain.queries.FindInfoByUserIdQuery;
-import com.stargi.backend.records.domain.services.IInfoCommandService;
-import com.stargi.backend.records.domain.services.IInfoQueryService;
+
 import com.stargi.backend.records.interfaces.dtos.InfoDTO;
 import com.stargi.backend.records.interfaces.dtos.requestbodies.EditInfoRequestBody;
 import org.springframework.http.MediaType;
@@ -35,7 +34,7 @@ public class InfoController {
     @GetMapping()
     public ResponseEntity<?> getAllInfos(){
         var response=infoQueryService.handle();
-        List<InfoDTO> infoDTOList= response.stream().map(info -> new InfoDTO(info.getId(),info.getRuc(), info.getBusinessName(), info.getCountry(),info.getUpdatedAt().toString(),info.getExpirationAt().toString(),info.getCloseAt().toString())).toList();
+        List<InfoDTO> infoDTOList= response.stream().map(info -> new InfoDTO(info.getId(),info.getRuc(), info.getBusinessName(), info.getCountry(),info.getStage().name(),info.getCommentary(),info.getUpdatedAt().toString(),info.getExpirationAt().toString(),info.getCloseAt().toString())).toList();
 
         return ResponseEntity.ok(infoDTOList);
     }
@@ -45,7 +44,15 @@ public class InfoController {
         var query=new FindInfoByUserIdQuery(userId);
         var response=infoQueryService.handle(query);
         if(response.isEmpty()) return ResponseEntity.notFound().build();
-        List<InfoDTO> infoDTOList= response.stream().map(info -> new InfoDTO(info.getId(),info.getRuc(), info.getBusinessName(), info.getCountry(),info.getUpdatedAt().toString(),info.getExpirationAt().toString(),info.getCloseAt().toString())).toList();
+        List<InfoDTO> infoDTOList= response.stream().map(info -> new InfoDTO(info.getId(),info.getRuc(), info.getBusinessName(), info.getCountry(),info.getStage().name(),info.getCommentary(),info.getUpdatedAt().toString(),info.getExpirationAt().toString(),info.getCloseAt().toString())).toList();
+        return ResponseEntity.ok(infoDTOList);
+    }
+    @GetMapping("{teamId}/infosTeam")
+    public ResponseEntity<?> getInfoByTeam(@PathVariable("teamId")Long teamId){
+        var query=new FindInfoByTeamIdQuery(teamId);
+        var response=infoQueryService.handle(query);
+        if(response.isEmpty()) return ResponseEntity.notFound().build();
+        List<InfoDTO> infoDTOList= response.stream().map(info -> new InfoDTO(info.getId(),info.getRuc(), info.getBusinessName(), info.getCountry(),info.getStage().name(),info.getCommentary(),info.getUpdatedAt().toString(),info.getExpirationAt().toString(),info.getCloseAt().toString())).toList();
         return ResponseEntity.ok(infoDTOList);
     }
 
@@ -65,5 +72,6 @@ public class InfoController {
         if(response.isEmpty()) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(response.get());
     }
+
 
 }

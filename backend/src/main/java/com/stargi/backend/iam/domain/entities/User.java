@@ -4,6 +4,11 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.stargi.backend.management.domain.entities.Team;
+import com.stargi.backend.records.domain.entities.Client;
+import com.stargi.backend.records.domain.entities.ClientCollection;
 import com.stargi.backend.records.domain.entities.Info;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -53,6 +58,24 @@ public class User implements UserDetails{
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<Info> infos;
 
+    @Getter
+    @Setter
+    @OneToOne(mappedBy = "leader",fetch = FetchType.EAGER)
+    @JsonBackReference
+    private Team leadingTeam;
+
+    @Getter
+    @Setter
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonBackReference
+    @JoinColumn(name = "team_id")
+    private Team team;
+
+    @OneToMany(mappedBy = "user")
+    private List<ClientCollection> clientCollections;
+
+    @OneToMany(mappedBy = "user")
+    private List<Client> clients;
 
     public void addInfo(Info info){
         this.infos.add(info);
@@ -60,8 +83,22 @@ public class User implements UserDetails{
     public User(){
         this.roles=new HashSet<>();
         this.infos=new ArrayList<>();
+        this.clientCollections=new ArrayList<>();
+        this.clients=new ArrayList<>();
+    }
+    public void addClient(Client c){
+        this.clients.add(c);
+    }
+    public void makeLeader(Team leadingTeam){
+        this.leadingTeam = leadingTeam;
+    }
+    public void addToGroup(Team team){
+        this.team = team;
     }
 
+    public void addCollectionClient(ClientCollection c){
+        this.clientCollections.add(c);
+    }
     public User(String username,String password,String firstName,String lastName,LocalDate birthDate,List<Role> roles){
         this();
         this.userName=username;
@@ -105,6 +142,7 @@ public class User implements UserDetails{
         return this.userName;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
