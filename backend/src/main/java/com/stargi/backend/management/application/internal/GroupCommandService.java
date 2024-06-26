@@ -23,8 +23,7 @@ public class GroupCommandService implements IGroupCommandService {
         if(user.get().getLeadingTeam()!=null) return 2L;
         var newGroup=new Team(command.name(), user.get());
         user.get().makeLeader(this.groupRepository.save(newGroup));
-        this.userRepository.save(user.get());
-        return 1L;
+        return this.userRepository.save(user.get()).getId();
     }
 
     @Override
@@ -45,10 +44,15 @@ public class GroupCommandService implements IGroupCommandService {
         var newLeader=this.userRepository.findById(command.leaderId());
         var group=this.groupRepository.findById(command.groupId());
         if(newLeader.isEmpty() || group.isEmpty()) return 0L;
-        group.get().getLeader().setLeadingTeam(null);
+        if(group.get().getLeader()!=null){
+            group.get().getLeader().setLeadingTeam(null);
+        }
         group.get().setLeader(newLeader.get());
         newLeader.get().setLeadingTeam(group.get());
+        this.userRepository.save(newLeader.get());
+        this.groupRepository.save(group.get());
         return 1L;
+
     }
 
     @Override

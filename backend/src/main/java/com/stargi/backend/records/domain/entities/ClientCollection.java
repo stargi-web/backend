@@ -25,6 +25,7 @@ public class ClientCollection {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Getter
     @OneToMany(mappedBy = "clientCollection")
     @JsonIgnoreProperties("clientCollection")
     private List<Client> clients;
@@ -33,5 +34,11 @@ public class ClientCollection {
         this.collectionName=collectionName;
         this.user=u;
         this.clients= new ArrayList<>();
+    }
+    public void addClient(Client c){
+        this.clients.add(c);
+    }
+    public void saveAll(List<Client> clients){
+        this.clients.addAll(clients);
     }
 }

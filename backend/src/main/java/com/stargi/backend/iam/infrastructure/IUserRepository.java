@@ -1,5 +1,6 @@
 package com.stargi.backend.iam.infrastructure;
 
+import com.stargi.backend.iam.domain.enums.Roles;
 import com.stargi.backend.management.domain.entities.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +17,9 @@ public interface IUserRepository extends JpaRepository<User,Long>{
     Optional<User> findByUserName(String username);
     boolean existsByUserName(String username);
     List<User> findByTeam(Team team);
+
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :role")
+    List<User> findByRole(@Param("role") Roles role);
 
     @Query("SELECT t.id FROM Team t WHERE t.leader.id = :userId")
     Long findTeamIdByLeaderId(@Param("userId") Long userId);

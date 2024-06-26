@@ -3,7 +3,9 @@ package com.stargi.backend.iam.application.internal;
 import java.util.List;
 
 import com.stargi.backend.iam.domain.Responses.LeaderInfo;
+import com.stargi.backend.iam.domain.enums.Roles;
 import com.stargi.backend.iam.domain.queries.GetUserByGroupQuery;
+import com.stargi.backend.iam.domain.queries.GetUsersByRolQuery;
 import com.stargi.backend.iam.domain.queries.IsUserLeaderQuery;
 import com.stargi.backend.management.infrastructure.GroupRepository;
 import org.springframework.stereotype.Service;
@@ -53,6 +55,13 @@ public class UserQueryService implements IUserQueryService{
         Long teamId = userRepository.findTeamIdByLeaderId(query.leaderId());
         boolean isLeader = teamId != null;
         return new LeaderInfo(isLeader, teamId);
+    }
+
+    @Override
+    public List<GetUserByIdResponse> handle(GetUsersByRolQuery query) {
+        var role= Roles.valueOf(query.rol());
+        var response=this.userRepository.findByRole(role).stream().map(user->new GetUserByIdResponse(user.getId(),user.getUsername(),user.getFirstName(),user.getLastName())).toList();
+        return response;
     }
 
 }

@@ -10,4 +10,5 @@ public interface IGroupCommandService {
     Long handle(AddMemberToGroupCommand command);
     Long handle(ChangeLeaderGroupCommand command);
     Long handle(CreateGroupWithoutLeaderCommand command);
+
 }

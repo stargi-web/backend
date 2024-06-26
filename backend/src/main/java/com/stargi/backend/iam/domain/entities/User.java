@@ -74,6 +74,7 @@ public class User implements UserDetails{
     @OneToMany(mappedBy = "user")
     private List<ClientCollection> clientCollections;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Client> clients;
 
@@ -115,7 +116,9 @@ public class User implements UserDetails{
         this.roles.add(role);
         return this;
     }
-
+    public String getFullName(){
+        return this.firstName+" "+this.lastName;
+    }
     public void addRoles(List<Role> roles) {
         var validatedRoleSet = Role.validateRoleSet(roles);
         this.roles.addAll(validatedRoleSet);

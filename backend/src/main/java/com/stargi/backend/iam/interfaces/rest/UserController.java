@@ -2,6 +2,8 @@ package com.stargi.backend.iam.interfaces.rest;
 
 import com.stargi.backend.iam.domain.commands.DeleteUserCommand;
 import com.stargi.backend.iam.domain.commands.EditPasswordCommand;
+import com.stargi.backend.iam.domain.queries.GetUserByGroupQuery;
+import com.stargi.backend.iam.domain.queries.GetUsersByRolQuery;
 import com.stargi.backend.iam.domain.queries.IsUserLeaderQuery;
 import com.stargi.backend.iam.domain.services.IUserCommandService;
 import com.stargi.backend.iam.domain.services.IUserQueryService;
@@ -27,6 +29,15 @@ public class UserController {
         var response=this.userQueryService.handle();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("{groupId}/group")
+    public ResponseEntity<?> getUsersByGroup(@PathVariable("groupId")Long groupId){
+        var query=new GetUserByGroupQuery(groupId);
+        var response=this.userQueryService.handle(query);
+        return ResponseEntity.ok(response);
+
+    }
+
     @PutMapping("changePassword")
     public ResponseEntity<?> setPasswordByUserId(@RequestBody EditPasswordCommand command){
         var user=this.userCommandService.handle(command);
@@ -50,6 +61,11 @@ public class UserController {
     @GetMapping("/{userId}/isLeader")
     public ResponseEntity<?> isUserLeader(@PathVariable("userId") Long userId){
         var query=new IsUserLeaderQuery(userId);
+        return ResponseEntity.ok(userQueryService.handle(query));
+    }
+    @GetMapping("/{role}/role")
+    public ResponseEntity<?>  getUsersByRole(@PathVariable("role")String role){
+        var query=new GetUsersByRolQuery(role);
         return ResponseEntity.ok(userQueryService.handle(query));
     }
 

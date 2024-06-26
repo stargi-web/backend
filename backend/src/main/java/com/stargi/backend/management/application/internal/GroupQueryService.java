@@ -31,7 +31,10 @@ public class GroupQueryService implements IGroupQueryService {
 
     @Override
     public Team handle(GetGroupByLeaderIdQuery query) {
-        return null;
+        var user=this.userRepository.findById(query.leaderId());
+        if(user.isEmpty())return null;
+        var response= this.groupRepository.findByLeader(user.get());
+        return response.orElse(null);
     }
 
     @Override
